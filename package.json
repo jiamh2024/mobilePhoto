@@ -1,0 +1,25 @@
+{
+  "name": "mobilephoto",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiamh2024/mobilePhoto.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jiamh2024/mobilePhoto/issues"
+  },
+  "homepage": "https://github.com/jiamh2024/mobilePhoto#readme",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "multer": "^1.4.5-lts.2"
+  }
+}
