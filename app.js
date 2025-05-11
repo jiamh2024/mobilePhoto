@@ -67,7 +67,8 @@ app.post('/upload', upload.single('video'), (req, res) => {
     uploadDate: new Date().toISOString()
   };
 
-  videos.push(videoInfo);
+  //videos.push(videoInfo);
+  videos[0] = videoInfo;
   res.json(videoInfo);
 });
 
