@@ -19,20 +19,18 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // 获取标题并清理文件名中的特殊字符
     let title = req.body.title || file.originalname;
-    
-    // 确保标题不为空
+    title = title.replace(/\s+/g, '-')
+              .replace(/[^\w\-]/g, '')
+              .toLowerCase();
     if (!title) title = 'video';
     
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9).toString().substring(0, 4);
     const ext = path.extname(file.originalname);
     cb(null, `${title}-${uniqueSuffix}${ext}`);
-
   }
 });
 
-// 文件过滤器 - 只允许视频文件
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('video/')) {
     cb(null, true);
@@ -45,14 +43,12 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 1024 * 1024 * 500 // 500MB 限制
+    fileSize: 1024 * 1024 * 500 // 500MB
   }
 });
 
-// 内存中的视频数据存储 (替代数据库)
 let videos = [];
 
-// 上传视频接口
 app.post('/upload', upload.single('video'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: '没有上传文件' });
@@ -60,24 +56,21 @@ app.post('/upload', upload.single('video'), (req, res) => {
 
   const videoInfo = {
     id: Date.now().toString(),
-    title: req.body.title || req.file.originalname,
+    title: req.body.title || path.parse(req.file.originalname).name,
     filename: req.file.filename,
     path: '/uploads/' + req.file.filename,
     size: req.file.size,
     uploadDate: new Date().toISOString()
   };
 
-  //videos.push(videoInfo);
-  videos[0] = videoInfo;
+  videos.push(videoInfo);
   res.json(videoInfo);
 });
 
-// 获取所有视频信息
 app.get('/videos', (req, res) => {
   res.json(videos);
 });
 
-// 获取单个视频信息
 app.get('/video/:id', (req, res) => {
   const video = videos.find(v => v.id === req.params.id);
   if (!video) {
@@ -86,10 +79,8 @@ app.get('/video/:id', (req, res) => {
   res.json(video);
 });
 
-// 提供上传的视频文件
 app.use('/uploads', express.static('uploads'));
 
-// 简单的首页 - 使用模板字符串避免转义问题
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -133,7 +124,7 @@ app.get('/', (req, res) => {
       
       <form id="uploadForm" enctype="multipart/form-data">
         <div>
-          <label for="title">姓名:</label>
+          <label for="title">视频标题:</label>
           <input type="text" id="title" name="title" required placeholder="请输入视频标题">
         </div>
         <div>
@@ -278,9 +269,7 @@ app.get('/', (req, res) => {
   `);
 });
 
-
-// 启动服务器
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log('服务器运行在 http://localhost:3000');
+  console.log(\`服务器运行在 http://localhost:\${PORT}\`);
 });
